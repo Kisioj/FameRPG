@@ -6,6 +6,8 @@ import pytmx
 from pygame.constants import HWSURFACE, DOUBLEBUF, RESIZABLE
 from pygame.surface import Surface
 
+from settings import TILE_WIDTH, TILE_HEIGHT, FPS
+from world_map import WorldMap
 
 pg.init()
 
@@ -13,9 +15,7 @@ display_width = 800
 display_height = 800
 
 
-TILE_WIDTH = 16
-TILE_HEIGHT = 16
-FPS = 60
+
 
 white = (255, 255, 255)
 
@@ -26,7 +26,12 @@ pg.display.set_caption('FAME RPG')
 clock = pg.time.Clock()
 
 # load map data
-world = pytmx.load_pygame('rsc/world.tmx')
+MAPS = {
+    'world': WorldMap('world'),
+    'forest': WorldMap('forest'),
+}
+current_map = MAPS['world']
+
 
 font = pg.font.SysFont("Arial", 18)
 
@@ -47,7 +52,7 @@ class Player:
 
         self.dir = 'DOWN'
         self.move_time = 0
-        self.move_delay = 0.1  # in seconds
+        self.move_delay = 0.3  # in seconds
 
         self.tiles = {
             'DOWN': (0, 0, TILE_WIDTH, TILE_HEIGHT),
@@ -75,10 +80,10 @@ class Player:
         }
 
     def draw(self, surface):
-        old_pixel_x = self.old_x * world.tilewidth
-        old_pixel_y = self.old_y * world.tileheight
-        pixel_x = self.x * world.tilewidth
-        pixel_y = self.y * world.tileheight
+        old_pixel_x = self.old_x * TILE_WIDTH
+        old_pixel_y = self.old_y * TILE_HEIGHT
+        pixel_x = self.x * TILE_WIDTH
+        pixel_y = self.y * TILE_HEIGHT
 
         time_passed = perf_counter() - self.move_time
         if time_passed >= self.move_delay:
@@ -108,6 +113,8 @@ class Player:
         return perf_counter() > self.move_time + self.move_delay
 
     def move(self):
+        global current_map
+
         new_x, new_y, new_dir = self.x, self.y, self.dir
         if pg.K_UP in keyboard:
             new_dir = 'UP'
@@ -123,10 +130,24 @@ class Player:
             new_x += 1
 
         if (new_x, new_y, new_dir) != (self.x, self.y, self.dir):
-            self.old_x = self.x
-            self.old_y = self.y
-            self.move_time = perf_counter()
-            self.x, self.y, self.dir = new_x, new_y, new_dir
+            self.dir = new_dir
+            if (new_x, new_y) in current_map.dense_positions:
+                return
+
+            if (new_x, new_y) in current_map.teleport_positions:
+                teleport = current_map.teleport_positions[(new_x, new_y)]
+                new_x = teleport.to_x
+                new_y = teleport.to_y
+                self.old_x = new_x
+                self.old_y = new_y
+                self.move_time = perf_counter()
+                self.x, self.y = new_x, new_y
+                current_map = MAPS[teleport.map_name]
+            else:
+                self.old_x = self.x
+                self.old_y = self.y
+                self.move_time = perf_counter()
+                self.x, self.y = new_x, new_y
 
 
 
@@ -149,23 +170,14 @@ def game_loop():
         if player.can_move():
             player.move()
 
-        for layer in world.visible_layers:
-            for x, y, gid, in layer:
-                tile = world.get_tile_image_by_gid(gid)
-                if not tile:
-                    continue
-                fake_screen.blit(tile, (x * world.tilewidth, y * world.tileheight))
-
+        current_map.draw_layers(fake_screen)
         player.draw(fake_screen)
+        current_map.draw_overlay_layers(fake_screen)
+
         pg.transform.scale2x(fake_screen, screen)
-
         screen.blit(update_fps(), (10, 0))
-
         pg.display.update()
         clock.tick(FPS)
 
-
 game_loop()
-# while 1:
-#     game_loop()
 pg.quit()
