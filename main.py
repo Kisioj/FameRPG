@@ -14,9 +14,6 @@ pg.init()
 display_width = 800
 display_height = 800
 
-
-
-
 white = (255, 255, 255)
 
 screen = pg.display.set_mode((display_width, display_height), HWSURFACE | DOUBLEBUF | RESIZABLE)
@@ -31,7 +28,6 @@ MAPS = {
     'forest': WorldMap('forest'),
 }
 current_map = MAPS['world']
-
 
 font = pg.font.SysFont("Arial", 18)
 
@@ -49,6 +45,7 @@ class Player:
         self.old_x = self.x
         self.old_y = self.y
         self.image = pg.image.load('rsc/M_01.png')
+        self.teleporting_to = None
 
         self.dir = 'DOWN'
         self.move_time = 0
@@ -109,12 +106,25 @@ class Player:
             tile,
         )
 
+    def should_teleport(self):
+        return self.teleporting_to and perf_counter() > self.move_time + self.move_delay
+
+    def teleport(self):
+        global current_map
+        teleport = self.teleporting_to
+        new_x = teleport.to_x
+        new_y = teleport.to_y
+        self.old_x = new_x
+        self.old_y = new_y
+        # self.move_time = perf_counter()
+        self.x, self.y = new_x, new_y
+        current_map = MAPS[teleport.map_name]
+        self.teleporting_to = None
+
     def can_move(self):
-        return perf_counter() > self.move_time + self.move_delay
+        return not self.teleporting_to and perf_counter() > self.move_time + self.move_delay
 
     def move(self):
-        global current_map
-
         new_x, new_y, new_dir = self.x, self.y, self.dir
         if pg.K_UP in keyboard:
             new_dir = 'UP'
@@ -131,28 +141,22 @@ class Player:
 
         if (new_x, new_y, new_dir) != (self.x, self.y, self.dir):
             self.dir = new_dir
+            if not 0 <= new_x < current_map.data.width or not 0 <= new_y < current_map.data.height:
+                return
+
             if (new_x, new_y) in current_map.dense_positions:
                 return
 
             if (new_x, new_y) in current_map.teleport_positions:
-                teleport = current_map.teleport_positions[(new_x, new_y)]
-                new_x = teleport.to_x
-                new_y = teleport.to_y
-                self.old_x = new_x
-                self.old_y = new_y
-                self.move_time = perf_counter()
-                self.x, self.y = new_x, new_y
-                current_map = MAPS[teleport.map_name]
-            else:
-                self.old_x = self.x
-                self.old_y = self.y
-                self.move_time = perf_counter()
-                self.x, self.y = new_x, new_y
+                self.teleporting_to = current_map.teleport_positions[(new_x, new_y)]
+
+            self.old_x = self.x
+            self.old_y = self.y
+            self.move_time = perf_counter()
+            self.x, self.y = new_x, new_y
 
 
-
-
-player = Player(x=1, y=1)
+player = Player(x=16, y=20)
 keyboard = set()
 
 
@@ -170,6 +174,9 @@ def game_loop():
         if player.can_move():
             player.move()
 
+        if player.should_teleport():
+            player.teleport()
+
         current_map.draw_layers(fake_screen)
         player.draw(fake_screen)
         current_map.draw_overlay_layers(fake_screen)
@@ -178,6 +185,7 @@ def game_loop():
         screen.blit(update_fps(), (10, 0))
         pg.display.update()
         clock.tick(FPS)
+
 
 game_loop()
 pg.quit()

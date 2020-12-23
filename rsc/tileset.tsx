@@ -41,32 +41,136 @@
  <tile id="65" terrain="0,0,0,"/>
  <tile id="73" terrain="1,1,0,1"/>
  <tile id="74" terrain="1,1,1,0"/>
- <tile id="160" terrain=",,,2"/>
- <tile id="161" terrain=",,2,2"/>
- <tile id="162" terrain=",,2,"/>
- <tile id="163" terrain=",,,3"/>
- <tile id="164" terrain=",,3,3"/>
- <tile id="165" terrain=",,3,"/>
- <tile id="176" terrain=",2,,2"/>
- <tile id="177" terrain="2,2,2,2"/>
- <tile id="178" terrain="2,,2,"/>
- <tile id="179" terrain=",3,,3"/>
- <tile id="180" terrain="3,3,3,3"/>
- <tile id="181" terrain="3,,3,"/>
- <tile id="192" terrain=",2,,"/>
- <tile id="193" terrain="2,2,,"/>
- <tile id="194" terrain="2,,,"/>
- <tile id="195" terrain=",3,,"/>
- <tile id="196" terrain="3,3,,"/>
- <tile id="197" terrain="3,,,"/>
- <tile id="209" terrain=",2,2,2"/>
- <tile id="210" terrain="2,,2,2"/>
- <tile id="212" terrain=",3,3,3"/>
- <tile id="213" terrain="3,,3,3"/>
- <tile id="225" terrain="2,2,,2"/>
- <tile id="226" terrain="2,2,2,"/>
- <tile id="228" terrain="3,3,,3"/>
- <tile id="229" terrain="3,3,3,"/>
+ <tile id="160" terrain=",,,2">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="161" terrain=",,2,2">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="162" terrain=",,2,">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="163" terrain=",,,3">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="164" terrain=",,3,3">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="165" terrain=",,3,">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="176" terrain=",2,,2">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="177" terrain="2,2,2,2">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="178" terrain="2,,2,">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="179" terrain=",3,,3">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="180" terrain="3,3,3,3">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="181" terrain="3,,3,">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="192" terrain=",2,,">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="193" terrain="2,2,,">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="194" terrain="2,,,">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="195" terrain=",3,,">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="196" terrain="3,3,,">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="197" terrain="3,,,">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="209" terrain=",2,2,2">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="210" terrain="2,,2,2">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="212" terrain=",3,3,3">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="213" terrain="3,,3,3">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="225" terrain="2,2,,2">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="226" terrain="2,2,2,">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="228" terrain="3,3,,3">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="229" terrain="3,3,3,">
+  <properties>
+   <property name="density" type="bool" value="true"/>
+  </properties>
+ </tile>
  <tile id="258">
   <properties>
    <property name="density" type="bool" value="false"/>
