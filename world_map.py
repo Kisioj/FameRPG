@@ -43,19 +43,29 @@ class WorldMap:
                     self.dense_positions.add((x, y))
 
 
-    def draw_layers(self, surface):
-        for layer in self.layers:
-            for x, y, gid in layer:
-                tile = self.data.get_tile_image_by_gid(gid)
-                if not tile:
-                    continue
-                surface.blit(tile, (x * TILE_WIDTH, y * TILE_HEIGHT))
+    def draw(self, surface, camera, layers):
+        from_x = max(camera.left - 1, 0)
+        to_x = min(camera.right, self.data.width - 1)
+        from_y = max(camera.top - 1, 0)
+        to_y = min(camera.bottom, self.data.height - 1)
 
-    def draw_overlay_layers(self, surface):
-        for layer in self.overlay_layers:
-            for x, y, gid in layer:
-                tile = self.data.get_tile_image_by_gid(gid)
-                if not tile:
-                    continue
-                surface.blit(tile, (x * TILE_WIDTH, y * TILE_HEIGHT))
+        for layer in layers:
+            for x in range(from_x, to_x + 1):
+                for y in range(from_y, to_y + 1):
+                    gid = layer.data[y][x]
+                    tile = self.data.get_tile_image_by_gid(gid)
+                    if not tile:
+                        continue
+
+                    relative_x = x - camera.left
+                    relative_y = y - camera.top
+                    offset_x, offset_y = camera.get_pixel_offset()
+
+                    surface.blit(tile, (relative_x * TILE_WIDTH - offset_x, relative_y * TILE_HEIGHT - offset_y))
+
+    def draw_layers(self, surface, camera):
+        self.draw(surface, camera, self.layers)
+
+    def draw_overlay_layers(self, surface, camera):
+        self.draw(surface, camera, self.overlay_layers)
 

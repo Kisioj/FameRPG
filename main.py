@@ -6,18 +6,19 @@ import pytmx
 from pygame.constants import HWSURFACE, DOUBLEBUF, RESIZABLE
 from pygame.surface import Surface
 
+from camera import Camera
 from settings import TILE_WIDTH, TILE_HEIGHT, FPS
 from world_map import WorldMap
 
 pg.init()
 
-display_width = 800
-display_height = 800
+SCREEN_WIDTH = 416
+SCREEN_HEIGHT = 416
 
 white = (255, 255, 255)
 
-screen = pg.display.set_mode((display_width, display_height), HWSURFACE | DOUBLEBUF | RESIZABLE)
-fake_screen = Surface((400, 400))
+screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), HWSURFACE | DOUBLEBUF | RESIZABLE)
+fake_screen = Surface((208, 208))
 
 pg.display.set_caption('FAME RPG')
 clock = pg.time.Clock()
@@ -50,6 +51,9 @@ class Player:
         self.dir = 'DOWN'
         self.move_time = 0
         self.move_delay = 0.3  # in seconds
+        self.view_range_x = 6
+        self.view_range_y = 6
+        self.camera = Camera(self)
 
         self.tiles = {
             'DOWN': (0, 0, TILE_WIDTH, TILE_HEIGHT),
@@ -77,23 +81,16 @@ class Player:
         }
 
     def draw(self, surface):
-        old_pixel_x = self.old_x * TILE_WIDTH
-        old_pixel_y = self.old_y * TILE_HEIGHT
-        pixel_x = self.x * TILE_WIDTH
-        pixel_y = self.y * TILE_HEIGHT
+        relative_x = self.x - self.camera.left
+        relative_y = self.y - self.camera.top
+        pixel_x = relative_x * TILE_WIDTH
+        pixel_y = relative_y * TILE_HEIGHT
 
         time_passed = perf_counter() - self.move_time
         if time_passed >= self.move_delay:
-            new_pixel_x = pixel_x
-            new_pixel_y = pixel_y
             tile = self.tiles[self.dir]
         else:  # we are currently moving
             factor = time_passed / self.move_delay
-            diff_x = pixel_x - old_pixel_x
-            diff_y = pixel_y - old_pixel_y
-            new_pixel_x = old_pixel_x + diff_x * factor
-            new_pixel_y = old_pixel_y + diff_y * factor
-
             if factor < 0.5:
                 frame = 0
             else:
@@ -102,7 +99,7 @@ class Player:
 
         surface.blit(
             self.image,
-            (new_pixel_x, new_pixel_y),
+            (pixel_x, pixel_y),
             tile,
         )
 
@@ -154,9 +151,10 @@ class Player:
             self.old_y = self.y
             self.move_time = perf_counter()
             self.x, self.y = new_x, new_y
+            self.camera.update()
 
 
-player = Player(x=16, y=20)
+player = Player(x=0, y=0)
 keyboard = set()
 
 
@@ -177,9 +175,10 @@ def game_loop():
         if player.should_teleport():
             player.teleport()
 
-        current_map.draw_layers(fake_screen)
+        pg.draw.rect(fake_screen, (0, 0, 255), (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+        current_map.draw_layers(fake_screen, player.camera)
         player.draw(fake_screen)
-        current_map.draw_overlay_layers(fake_screen)
+        current_map.draw_overlay_layers(fake_screen, player.camera)
 
         pg.transform.scale2x(fake_screen, screen)
         screen.blit(update_fps(), (10, 0))
