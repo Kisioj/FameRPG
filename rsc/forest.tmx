@@ -122,7 +122,7 @@
 </data>
  </layer>
  <objectgroup id="5" name="teleports">
-  <object id="1" x="144.693" y="0.721591" width="14.125" height="14.3125">
+  <object id="1" x="144" y="0" width="16" height="16">
    <properties>
     <property name="teleport" value="world,16,24"/>
    </properties>

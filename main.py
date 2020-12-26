@@ -117,6 +117,7 @@ class Player:
         self.x, self.y = new_x, new_y
         current_map = MAPS[teleport.map_name]
         self.teleporting_to = None
+        self.camera.update()
 
     def can_move(self):
         return not self.teleporting_to and perf_counter() > self.move_time + self.move_delay
@@ -175,7 +176,7 @@ def game_loop():
         if player.should_teleport():
             player.teleport()
 
-        pg.draw.rect(fake_screen, (0, 0, 255), (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
+        pg.draw.rect(fake_screen, (0, 0, 0), (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
         current_map.draw_layers(fake_screen, player.camera)
         player.draw(fake_screen)
         current_map.draw_overlay_layers(fake_screen, player.camera)

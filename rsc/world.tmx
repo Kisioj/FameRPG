@@ -125,7 +125,7 @@
   <properties>
    <property name="teleport" value="forest,9,0"/>
   </properties>
-  <object id="17" x="256.727" y="385.091" width="14.3636" height="13.9091">
+  <object id="17" x="256" y="384" width="16" height="16">
    <properties>
     <property name="teleport" value="forest,9,0"/>
    </properties>

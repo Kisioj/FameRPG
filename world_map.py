@@ -49,6 +49,8 @@ class WorldMap:
         from_y = max(camera.top - 1, 0)
         to_y = min(camera.bottom, self.data.height - 1)
 
+        offset_x, offset_y = camera.get_pixel_offset()
+
         for layer in layers:
             for x in range(from_x, to_x + 1):
                 for y in range(from_y, to_y + 1):
@@ -59,7 +61,6 @@ class WorldMap:
 
                     relative_x = x - camera.left
                     relative_y = y - camera.top
-                    offset_x, offset_y = camera.get_pixel_offset()
 
                     surface.blit(tile, (relative_x * TILE_WIDTH - offset_x, relative_y * TILE_HEIGHT - offset_y))
 
