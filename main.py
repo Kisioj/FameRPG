@@ -53,7 +53,7 @@ class Player:
         self.move_delay = 0.3  # in seconds
         self.view_range_x = 6
         self.view_range_y = 6
-        self.camera = Camera(self)
+        self.camera = Camera(self, world_width=current_map.data.width, world_height=current_map.data.height)
 
         self.tiles = {
             'DOWN': (0, 0, TILE_WIDTH, TILE_HEIGHT),
@@ -97,9 +97,11 @@ class Player:
                 frame = 1
             tile = self.animated_tiles[self.dir][frame]
 
+        offset_x, offset_y = self.camera.get_pixel_offset(for_player=True)
+
         surface.blit(
             self.image,
-            (pixel_x, pixel_y),
+            (pixel_x + offset_x, pixel_y + offset_y),
             tile,
         )
 
@@ -117,7 +119,7 @@ class Player:
         self.x, self.y = new_x, new_y
         current_map = MAPS[teleport.map_name]
         self.teleporting_to = None
-        self.camera.update()
+        self.camera.update(world_width=current_map.data.width, world_height=current_map.data.height)
 
     def can_move(self):
         return not self.teleporting_to and perf_counter() > self.move_time + self.move_delay
@@ -155,7 +157,7 @@ class Player:
             self.camera.update()
 
 
-player = Player(x=0, y=0)
+player = Player(x=10, y=0)
 keyboard = set()
 
 
