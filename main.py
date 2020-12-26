@@ -43,6 +43,9 @@ def game_loop():
                 game_exit = True
             elif event.type == pg.KEYDOWN:
                 keyboard.add(event.key)
+                if event.key == pg.K_z:
+                    player.action()
+
             elif event.type == pg.KEYUP:
                 keyboard.remove(event.key)
 

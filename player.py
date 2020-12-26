@@ -12,6 +12,26 @@ class Player(NPC):
         super().__init__(*args, **kwargs)
         self.camera = Camera(self, world_width=self.current_map.data.width, world_height=self.current_map.data.height)
 
+    def action(self):
+        x, y = self.x, self.y
+
+        if self.dir == 'UP':
+            y -= 1
+        elif self.dir == 'DOWN':
+            y += 1
+        elif self.dir == 'LEFT':
+            x -= 1
+        elif self.dir == 'RIGHT':
+            x += 1
+
+        print('action')
+
+        for npc in self.current_map.npcs:
+            if (x, y) == (npc.x, npc.y):
+                npc.talk(self)
+
+
+
     def should_teleport(self):
         return self.teleporting_to and perf_counter() > self.move_time + self.move_delay
 
