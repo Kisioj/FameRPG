@@ -22,8 +22,9 @@ class Maciek(NPC):
     def __init__(self, x, y, current_map):
         super().__init__(x, y, current_map, self.filename, self.metadata_filename)
 
-    def talk(self, player):
+    def talk(self, player, talk_hud):
         self.dir = OPPOSITE_DIRECTION_MAP[player.dir]
+        talk_hud.set_text('Hello my friend? You need sunglasses? If so, I can sell you few pairs. Would you like to buy?')
         print(f'{self.identifier}: Witaj!')
 
 

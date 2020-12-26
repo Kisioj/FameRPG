@@ -12,7 +12,7 @@ class Player(NPC):
         super().__init__(*args, **kwargs)
         self.camera = Camera(self, world_width=self.current_map.data.width, world_height=self.current_map.data.height)
 
-    def action(self):
+    def action(self, talk_hud):
         x, y = self.x, self.y
 
         if self.dir == 'UP':
@@ -28,7 +28,7 @@ class Player(NPC):
 
         for npc in self.current_map.npcs:
             if (x, y) == (npc.x, npc.y):
-                npc.talk(self)
+                npc.talk(self, talk_hud)
 
 
 
