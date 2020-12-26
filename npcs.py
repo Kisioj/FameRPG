@@ -26,6 +26,7 @@ class Maciek(NPC):
         self.dir = OPPOSITE_DIRECTION_MAP[player.dir]
         talk_hud.set_text('Hello my friend? You need sunglasses? If so, I can sell you few pairs. Would you like to buy?')
         print(f'{self.identifier}: Witaj!')
+        talk_hud.open()
 
 
 register_npc(Maciek)
