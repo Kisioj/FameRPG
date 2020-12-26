@@ -70,3 +70,10 @@ class WorldMap:
     def draw_overlay_layers(self, surface, camera):
         self.draw(surface, camera, self.overlay_layers)
 
+
+MAPS = {
+    'world': WorldMap('world'),
+    'forest': WorldMap('forest'),
+}
+
+START_MAP = MAPS['world']

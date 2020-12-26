@@ -1,15 +1,8 @@
-import json
-from collections import defaultdict
-from time import perf_counter
-
 import pygame as pg
-import pytmx
 from pygame.constants import HWSURFACE, DOUBLEBUF, RESIZABLE
 from pygame.surface import Surface
+from keyboard import keyboard
 
-from camera import Camera
-from settings import TILE_WIDTH, TILE_HEIGHT, FPS
-from world_map import WorldMap
 
 pg.init()
 
@@ -25,13 +18,12 @@ pg.display.set_caption('FAME RPG')
 clock = pg.time.Clock()
 
 # load map data
-MAPS = {
-    'world': WorldMap('world'),
-    'forest': WorldMap('forest'),
-}
-current_map = MAPS['world']
 
 font = pg.font.SysFont("Arial", 18)
+
+from settings import FPS
+from world_map import START_MAP
+from player import Player
 
 
 def update_fps():
@@ -40,118 +32,7 @@ def update_fps():
     return fps_text
 
 
-class Player:
-    def __init__(self, x, y, filename, metadata_filename):
-        self.x = x
-        self.y = y
-        self.old_x = self.x
-        self.old_y = self.y
-        self.image = pg.image.load(filename)
-        self.teleporting_to = None
-
-        self.dir = 'DOWN'
-        self.move_time = 0
-        self.move_delay = 0.3  # in seconds
-        self.view_range_x = 6
-        self.view_range_y = 6
-        self.camera = Camera(self, world_width=current_map.data.width, world_height=current_map.data.height)
-
-        with open(metadata_filename) as metadata_file:
-            data = json.load(metadata_file)
-
-        self.tile_width = data['tile_width']
-        self.tile_height = data['tile_height']
-
-        self.tiles = {
-            tile_name: tile_position
-            for tile_name, tile_position in data['tiles'].items()
-        }
-
-        self.animated_tiles = {
-            tile_name: tile_positions
-            for tile_name, tile_positions in data['animations'].items()
-        }
-
-    def draw(self, surface):
-        relative_x = self.x - self.camera.left
-        relative_y = self.y - self.camera.top
-        pixel_x = relative_x * TILE_WIDTH
-        pixel_y = relative_y * TILE_HEIGHT
-
-        time_passed = perf_counter() - self.move_time
-        if time_passed >= self.move_delay:
-            tile_pos = self.tiles[self.dir]
-        else:  # we are currently moving
-            factor = time_passed / self.move_delay
-            if factor < 0.5:
-                frame = 0
-            else:
-                frame = 1
-            tile_pos = self.animated_tiles[self.dir][frame]
-
-        tile = [*tile_pos, self.tile_width, self.tile_height]
-        offset_x, offset_y = self.camera.get_pixel_offset(for_player=True)
-
-        surface.blit(
-            self.image,
-            (pixel_x + offset_x, pixel_y + offset_y),
-            tile,
-        )
-
-    def should_teleport(self):
-        return self.teleporting_to and perf_counter() > self.move_time + self.move_delay
-
-    def teleport(self):
-        global current_map
-        teleport = self.teleporting_to
-        new_x = teleport.to_x
-        new_y = teleport.to_y
-        self.old_x = new_x
-        self.old_y = new_y
-        # self.move_time = perf_counter()
-        self.x, self.y = new_x, new_y
-        current_map = MAPS[teleport.map_name]
-        self.teleporting_to = None
-        self.camera.update(world_width=current_map.data.width, world_height=current_map.data.height)
-
-    def can_move(self):
-        return not self.teleporting_to and perf_counter() > self.move_time + self.move_delay
-
-    def move(self):
-        new_x, new_y, new_dir = self.x, self.y, self.dir
-        if pg.K_UP in keyboard:
-            new_dir = 'UP'
-            new_y -= 1
-        if pg.K_DOWN in keyboard:
-            new_dir = 'DOWN'
-            new_y += 1
-        if pg.K_LEFT in keyboard:
-            new_dir = 'LEFT'
-            new_x -= 1
-        if pg.K_RIGHT in keyboard:
-            new_dir = 'RIGHT'
-            new_x += 1
-
-        if (new_x, new_y, new_dir) != (self.x, self.y, self.dir):
-            self.dir = new_dir
-            if not 0 <= new_x < current_map.data.width or not 0 <= new_y < current_map.data.height:
-                return
-
-            if (new_x, new_y) in current_map.dense_positions:
-                return
-
-            if (new_x, new_y) in current_map.teleport_positions:
-                self.teleporting_to = current_map.teleport_positions[(new_x, new_y)]
-
-            self.old_x = self.x
-            self.old_y = self.y
-            self.move_time = perf_counter()
-            self.x, self.y = new_x, new_y
-            self.camera.update()
-
-
-player = Player(x=10, y=0, filename='rsc/M_01.png', metadata_filename='rsc/hero_sprite_metadata.json')
-keyboard = set()
+player = Player(x=10, y=0, current_map=START_MAP, filename='rsc/M_01.png', metadata_filename='rsc/hero_sprite_metadata.json')
 
 
 def game_loop():
@@ -172,9 +53,9 @@ def game_loop():
             player.teleport()
 
         pg.draw.rect(fake_screen, (0, 0, 0), (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
-        current_map.draw_layers(fake_screen, player.camera)
+        player.current_map.draw_layers(fake_screen, player.camera)
         player.draw(fake_screen)
-        current_map.draw_overlay_layers(fake_screen, player.camera)
+        player.current_map.draw_overlay_layers(fake_screen, player.camera)
 
         pg.transform.scale2x(fake_screen, screen)
         screen.blit(update_fps(), (10, 0))

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="25" height="25" tilewidth="16" tileheight="16" infinite="0" nextlayerid="7" nextobjectid="18">
+<map version="1.4" tiledversion="1.4.3" orientation="orthogonal" renderorder="right-down" width="25" height="25" tilewidth="16" tileheight="16" infinite="0" nextlayerid="9" nextobjectid="20">
  <tileset firstgid="1" source="tileset.tsx"/>
  <tileset firstgid="337" source="mountains.tsx"/>
+ <tileset firstgid="457" source="M_03.tsx"/>
  <layer id="1" name="terain" width="25" height="25">
   <data encoding="csv">
 18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,
@@ -128,6 +129,14 @@
   <object id="17" x="256" y="384" width="16" height="16">
    <properties>
     <property name="teleport" value="forest,9,0"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="8" name="npcs">
+  <object id="19" gid="457" x="224" y="144" width="16" height="16">
+   <properties>
+    <property name="identifier" value="maciek"/>
+    <property name="object_type" value="npc"/>
    </properties>
   </object>
  </objectgroup>
