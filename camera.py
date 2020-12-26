@@ -76,6 +76,8 @@ class Camera:
             offset_y = (old_pixel_y + diff_y * factor) - pixel_y
 
             if for_player:
+                offset_x = -offset_x
+                offset_y = -offset_y
                 if not(self.stopped_x or self.old_stopped_x):
                     offset_x = 0
 

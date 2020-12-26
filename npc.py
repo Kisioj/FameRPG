@@ -21,7 +21,6 @@ class NPC:
         self.move_delay = 0.3  # in seconds
         self.view_range_x = 6
         self.view_range_y = 6
-        self.camera = Camera(self, world_width=self.current_map.data.width, world_height=self.current_map.data.height)
 
         with open(metadata_filename) as metadata_file:
             data = json.load(metadata_file)
@@ -39,9 +38,9 @@ class NPC:
             for tile_name, tile_positions in data['animations'].items()
         }
 
-    def draw(self, surface):
-        relative_x = self.x - self.camera.left
-        relative_y = self.y - self.camera.top
+    def _draw(self, surface, camera, offset_x, offset_y):
+        relative_x = self.x - camera.left
+        relative_y = self.y - camera.top
         pixel_x = relative_x * TILE_WIDTH
         pixel_y = relative_y * TILE_HEIGHT
 
@@ -57,10 +56,13 @@ class NPC:
             tile_pos = self.animated_tiles[self.dir][frame]
 
         tile = [*tile_pos, self.tile_width, self.tile_height]
-        offset_x, offset_y = self.camera.get_pixel_offset(for_player=True)
 
         surface.blit(
             self.image,
-            (pixel_x + offset_x, pixel_y + offset_y),
+            (pixel_x - offset_x, pixel_y - offset_y),
             tile,
         )
+
+    def draw(self, surface, camera):
+        offset_x, offset_y = camera.get_pixel_offset(for_player=False)
+        self._draw(surface, camera, offset_x, offset_y)

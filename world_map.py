@@ -1,6 +1,8 @@
 import pytmx
 from pytmx import TiledObjectGroup
 
+from npc import NPC
+from npcs import NPCs
 from settings import TILE_WIDTH, TILE_HEIGHT
 
 
@@ -18,9 +20,20 @@ class WorldMap:
         self.teleport_positions = dict()
         self.layers = []
         self.overlay_layers = []
+        self.npcs = []
         for layer in self.data.visible_layers:
             if isinstance(layer, TiledObjectGroup):
                 for obj in layer:
+                    object_type = obj.properties.get('object_type')
+                    if object_type == 'npc':
+                        identifier = obj.properties['identifier']
+                        x = int(obj.x // TILE_WIDTH)
+                        y = int(obj.y // TILE_HEIGHT)
+                        npc_class = NPCs[identifier]
+                        npc = npc_class(x, y, self)
+                        self.npcs.append(npc)
+                        continue
+
                     teleport = obj.properties.get('teleport')
                     if teleport:
                         map_name, to_x, to_y = teleport.split(',')
@@ -63,6 +76,10 @@ class WorldMap:
                     relative_y = y - camera.top
 
                     surface.blit(tile, (relative_x * TILE_WIDTH - offset_x, relative_y * TILE_HEIGHT - offset_y))
+
+    def draw_npcs(self, surface, camera):
+        for npc in self.npcs:
+            npc.draw(surface, camera)
 
     def draw_layers(self, surface, camera):
         self.draw(surface, camera, self.layers)

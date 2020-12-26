@@ -1,12 +1,17 @@
 from time import perf_counter
 import pygame as pg
 
+from camera import Camera
 from keyboard import keyboard
 from npc import NPC
 from world_map import MAPS
 
 
 class Player(NPC):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.camera = Camera(self, world_width=self.current_map.data.width, world_height=self.current_map.data.height)
+
     def should_teleport(self):
         return self.teleporting_to and perf_counter() > self.move_time + self.move_delay
 
@@ -48,6 +53,10 @@ class Player(NPC):
             if (new_x, new_y) in self.current_map.dense_positions:
                 return
 
+            for npc in self.current_map.npcs:
+                if (new_x, new_y) == (npc.x, npc.y):
+                    return
+
             if (new_x, new_y) in self.current_map.teleport_positions:
                 self.teleporting_to = self.current_map.teleport_positions[(new_x, new_y)]
 
@@ -56,3 +65,7 @@ class Player(NPC):
             self.move_time = perf_counter()
             self.x, self.y = new_x, new_y
             self.camera.update()
+
+    def draw(self, surface, camera):
+        offset_x, offset_y = camera.get_pixel_offset(for_player=True)
+        self._draw(surface, camera, offset_x, offset_y)

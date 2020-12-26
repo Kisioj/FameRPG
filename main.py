@@ -54,7 +54,8 @@ def game_loop():
 
         pg.draw.rect(fake_screen, (0, 0, 0), (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
         player.current_map.draw_layers(fake_screen, player.camera)
-        player.draw(fake_screen)
+        player.draw(fake_screen, player.camera)
+        player.current_map.draw_npcs(fake_screen, player.camera)
         player.current_map.draw_overlay_layers(fake_screen, player.camera)
 
         pg.transform.scale2x(fake_screen, screen)
