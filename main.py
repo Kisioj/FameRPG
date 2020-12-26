@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 from time import perf_counter
 
@@ -40,12 +41,12 @@ def update_fps():
 
 
 class Player:
-    def __init__(self, x, y):
+    def __init__(self, x, y, filename, metadata_filename):
         self.x = x
         self.y = y
         self.old_x = self.x
         self.old_y = self.y
-        self.image = pg.image.load('rsc/M_01.png')
+        self.image = pg.image.load(filename)
         self.teleporting_to = None
 
         self.dir = 'DOWN'
@@ -55,29 +56,20 @@ class Player:
         self.view_range_y = 6
         self.camera = Camera(self, world_width=current_map.data.width, world_height=current_map.data.height)
 
+        with open(metadata_filename) as metadata_file:
+            data = json.load(metadata_file)
+
+        self.tile_width = data['tile_width']
+        self.tile_height = data['tile_height']
+
         self.tiles = {
-            'DOWN': (0, 0, TILE_WIDTH, TILE_HEIGHT),
-            'RIGHT': (16, 0, TILE_WIDTH, TILE_HEIGHT),
-            'UP': (32, 0, TILE_WIDTH, TILE_HEIGHT),
-            'LEFT': (48, 0, TILE_WIDTH, TILE_HEIGHT),
+            tile_name: tile_position
+            for tile_name, tile_position in data['tiles'].items()
         }
+
         self.animated_tiles = {
-            'DOWN': [
-                (0, 16, TILE_WIDTH, TILE_HEIGHT),
-                (0, 32, TILE_WIDTH, TILE_HEIGHT),
-            ],
-            'RIGHT': [
-                (16, 16, TILE_WIDTH, TILE_HEIGHT),
-                (16, 32, TILE_WIDTH, TILE_HEIGHT),
-            ],
-            'UP': [
-                (32, 16, TILE_WIDTH, TILE_HEIGHT),
-                (32, 32, TILE_WIDTH, TILE_HEIGHT),
-            ],
-            'LEFT': [
-                (48, 16, TILE_WIDTH, TILE_HEIGHT),
-                (48, 32, TILE_WIDTH, TILE_HEIGHT),
-            ]
+            tile_name: tile_positions
+            for tile_name, tile_positions in data['animations'].items()
         }
 
     def draw(self, surface):
@@ -88,15 +80,16 @@ class Player:
 
         time_passed = perf_counter() - self.move_time
         if time_passed >= self.move_delay:
-            tile = self.tiles[self.dir]
+            tile_pos = self.tiles[self.dir]
         else:  # we are currently moving
             factor = time_passed / self.move_delay
             if factor < 0.5:
                 frame = 0
             else:
                 frame = 1
-            tile = self.animated_tiles[self.dir][frame]
+            tile_pos = self.animated_tiles[self.dir][frame]
 
+        tile = [*tile_pos, self.tile_width, self.tile_height]
         offset_x, offset_y = self.camera.get_pixel_offset(for_player=True)
 
         surface.blit(
@@ -157,7 +150,7 @@ class Player:
             self.camera.update()
 
 
-player = Player(x=10, y=0)
+player = Player(x=10, y=0, filename='rsc/M_01.png', metadata_filename='rsc/hero_sprite_metadata.json')
 keyboard = set()
 
 
